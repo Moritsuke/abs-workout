@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#123e68">
+<meta name="description" content="音声案内・回数カウント・30秒休憩付きの腹筋トレーニングタイマー">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icon.svg" type="image/svg+xml">
+<title>腹筋トレーニングタイマー</title>
+<style>
+:root{color-scheme:light dark;--bg:#f3f7fa;--card:#fff;--ink:#102b49;--muted:#526579;--line:#d4e0e8;--accent:#123e68;--mint:#bcebe6}
+@media(prefers-color-scheme:dark){:root{--bg:#101820;--card:#1c2935;--ink:#eef6ff;--muted:#b7c6d4;--line:#3b4b59;--accent:#4e9bd5;--mint:#245b5a}}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif}
+main{max-width:700px;margin:auto;padding:16px 14px 36px}.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin:12px 0}
+h1{font-size:clamp(24px,6vw,34px);margin:8px 0 4px}h2{font-size:19px;margin:0 0 10px}.muted{color:var(--muted)}.top{display:flex;justify-content:space-between;gap:10px;align-items:center}
+.hero{text-align:center;background:var(--card);border:2px solid var(--line);border-radius:20px;padding:24px 12px;margin:12px 0}
+.phase{font-size:13px;font-weight:800;letter-spacing:.12em;color:var(--muted)}.name{font-size:clamp(24px,6vw,32px);font-weight:850;margin:8px 0}.counter{font-size:clamp(48px,15vw,76px);font-weight:900;line-height:1.12;font-variant-numeric:tabular-nums;margin:10px 0}.instruction{min-height:48px;line-height:1.6}.bar{height:9px;background:var(--line);border-radius:20px;overflow:hidden;margin-top:12px}.fill{height:100%;width:0;background:var(--accent);transition:width .2s}
+.controls{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.btn{border:1px solid var(--line);border-radius:12px;padding:14px 8px;font-size:16px;font-weight:800;background:var(--card);color:var(--ink);cursor:pointer}.primary{background:var(--accent);color:white;border-color:transparent}.btn:disabled{opacity:.45}
+.exercise{display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid var(--line)}.exercise:last-child{border-bottom:0}.number{display:grid;place-items:center;width:40px;height:40px;border:1px solid var(--line);border-radius:11px;font-weight:900;flex-shrink:0}.exercise.active{background:color-mix(in srgb,var(--mint) 45%,transparent);border-radius:10px;padding-left:8px;padding-right:8px}.exname{font-weight:800}.exdetail{font-size:13px;color:var(--muted);margin-top:3px}.status{margin-left:auto;font-size:12px;color:var(--muted);white-space:nowrap}
+label{display:flex;gap:10px;align-items:center;padding:8px 0}input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent)}.notice{font-size:13px;line-height:1.65;color:var(--muted)}.done{font-weight:800;font-size:22px}.hidden{display:none}
+</style>
+</head>
+<body><main>
+<div class="top"><div><div class="muted">WORKOUT TIMER</div><h1>腹筋トレーニング</h1></div><div style="text-align:right"><div class="muted">休憩</div><strong>30秒</strong></div></div>
+<div class="panel">
+ <div class="top"><strong>4種目・全12セット</strong><strong id="elapsed">経過 00:00</strong></div>
+ <div class="bar"><div class="fill" id="overall"></div></div>
+ <div class="top muted" style="font-size:12px;margin-top:6px"><span id="step">準備完了</span><span id="percent">0%</span></div>
+</div>
+<section class="hero" aria-live="polite">
+ <div class="phase" id="phase">READY</div><div class="name" id="name">準備完了</div>
+ <div class="counter" id="counter">スタート！</div><div class="instruction" id="instruction">開始を押すと自動で進みます</div>
+ <div class="top muted" style="font-size:13px;margin-top:12px"><span id="set">全12セット</span><span id="subprogress"> </span></div><div class="bar"><div class="fill" id="setbar"></div></div>
+</section>
+<div class="controls"><button class="btn primary" id="start">▶ 開始</button><button class="btn" id="pause" disabled>Ⅱ 一時停止</button><button class="btn" id="reset">↺ リセット</button></div>
+<section class="panel"><h2>メニュー</h2>
+ <div class="exercise" data-ex="0"><div class="number">1</div><div><div class="exname">クランチ</div><div class="exdetail">15回 × 3セット</div></div><div class="status">待機</div></div>
+ <div class="exercise" data-ex="1"><div class="number">2</div><div><div class="exname">レッグレイズ</div><div class="exdetail">15回 × 3セット</div></div><div class="status">待機</div></div>
+ <div class="exercise" data-ex="2"><div class="number">3</div><div><div class="exname">ツイストクランチ</div><div class="exdetail">左右各15回 × 3セット</div></div><div class="status">待機</div></div>
+ <div class="exercise" data-ex="3"><div class="number">4</div><div><div class="exname">プランク</div><div class="exdetail">30秒 × 3セット</div></div><div class="status">待機</div></div>
+</section>
+<section class="panel"><h2>音声設定</h2>
+ <label><input type="checkbox" id="voice" checked> 音声案内を有効にする</label>
+ <label><input type="checkbox" id="repvoice" checked> 1回ごとに回数を読み上げる</label>
+ <button class="btn" id="testvoice" style="width:100%;margin-top:5px">🔊 音声テスト</button>
+ <p class="notice">音声テストを押して日本語の読み上げを確認してください。音が出ない場合は、スマホのメディア音量を上げ、ページを開いたままにしてください。</p>
+</section>
+<section class="panel hidden" id="finished"><div class="done">トレーニング完了！</div><p>お疲れさまでした。ゆっくり呼吸を整えてください。</p></section>
+<p class="notice">回数種目は1回約2秒でカウントし、1回目から毎回「1回、2回、3回…」と音声で読み上げます。ツイストクランチは左右交互に合計30回（左右各15回）です。動作が追いつかない場合は一時停止し、痛みが出たら中止してください。</p>
+</main>
+<script>
+(()=>{
+const $=id=>document.getElementById(id);
+const exercises=[
+ {name:'クランチ',reps:15,sec:2,tip:'肩甲骨が浮く程度に上体を丸める'},
+ {name:'レッグレイズ',reps:15,sec:2,tip:'腰を床につけたまま脚をゆっくり上げ下げ'},
+ {name:'ツイストクランチ',reps:30,sec:2,tip:'左右交互に。反対側の肘を膝へ近づける'},
+ {name:'プランク',reps:30,sec:1,tip:'頭からかかとまで一直線。呼吸を止めない'}
+];
+let seq=[];exercises.forEach((e,i)=>{for(let s=1;s<=3;s++){seq.push({i,s,type:'work',duration:e.reps*e.sec});if(!(i===3&&s===3))seq.push({i,s,type:'rest',duration:30});}});
+let idx=0,left=0,elapsed=0,active=false,started=false,interval=null,last=0,lastSpoken='',lastRep=0;
+function say(msg){if(!$('voice').checked)return;if(!('speechSynthesis'in window)){ $('instruction').textContent='このブラウザは音声読み上げに対応していません';return;}try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(msg);u.lang='ja-JP';u.rate=1.0;u.volume=1;speechSynthesis.speak(u);}catch(e){}}
+function time(n){return String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0')}
+function render(){
+ $('elapsed').textContent='経過 '+time(elapsed);
+ $('overall').style.width=(idx/seq.length*100)+'%';$('percent').textContent=Math.floor(idx/seq.length*100)+'%';
+ $('step').textContent=started?(idx>=seq.length?'完了':`進行 ${idx+1} / ${seq.length}`):'準備完了';
+ document.querySelectorAll('.exercise').forEach((el,i)=>{const current=started&&idx<seq.length&&seq[idx].i===i;el.classList.toggle('active',current);const done=started&&(idx>=seq.length||seq.slice(0,idx).some(b=>b.i===i&&b.type==='work'));el.querySelector('.status').textContent=current?'実施中':done?'完了':'待機';});
+ if(!started){$('phase').textContent='READY';$('name').textContent='準備完了';$('counter').textContent='スタート！';$('instruction').textContent='開始を押すと自動で進みます';$('set').textContent='全12セット';$('setbar').style.width='0%';return;}
+ if(idx>=seq.length){$('phase').textContent='COMPLETE';$('name').textContent='全種目完了';$('counter').textContent='終了！';$('instruction').textContent='お疲れさまでした';$('set').textContent='全メニュー完了';$('setbar').style.width='100%';return;}
+ const b=seq[idx],e=exercises[b.i];$('name').textContent=e.name;$('phase').textContent=b.type==='rest'?'REST / 休憩':'WORK / トレーニング';
+ $('counter').textContent=b.type==='rest'?left+'秒':b.i===3?left+'秒':`${Math.min(e.reps,Math.floor((b.duration-left)/e.sec)+1)} / ${e.reps}`;
+ $('instruction').textContent=b.type==='rest'?(idx+1<seq.length?(seq[idx+1].i===b.i?'次のセットに備えて休憩':'次は'+exercises[seq[idx+1].i].name):'最後の休憩'):e.tip;
+ $('set').textContent=`セット ${b.s} / 3`+(b.type==='rest'?' ・休憩中':'');$('subprogress').textContent=b.type==='rest'?'休憩':`目安 ${e.reps}回`;
+ $('setbar').style.width=((b.duration-left)/b.duration*100)+'%';
+}
+function enter(){if(idx>=seq.length){complete();return;}const b=seq[idx],e=exercises[b.i];left=b.duration;lastSpoken='';lastRep=0;
+ if(b.type==='work')say(`${e.name}、${b.i===3?'30秒':b.i===2?'左右各15回':'15回'}、${b.s}セット目、開始`);
+ else say('休憩、30秒');render();}
+function complete(){active=false;clearInterval(interval);interval=null;idx=seq.length;$('start').disabled=true;$('pause').disabled=true;$('finished').classList.remove('hidden');say('トレーニング終了です。お疲れさまでした');render();}
+function tick(){if(!active)return;elapsed++;left--;const b=seq[idx],e=exercises[b.i];
+ if(b.type==='work'&&b.i!==3&&$('repvoice').checked){const n=Math.min(e.reps,Math.floor((b.duration-left)/e.sec));if(n>0&&n!==lastRep){lastRep=n;say(`${n}回`);}}
+ if(left<=0){idx++;if(idx>=seq.length){complete();return;}enter();return;}
+ if(b.type==='rest'&&left<=3&&lastSpoken!==left){lastSpoken=left;say(left===1?'まもなく開始':`あと${left}秒`);}
+ render();}
+function start(){if(active)return;if(!started){started=true;idx=0;elapsed=0;$('finished').classList.add('hidden');enter();}active=true;$('start').disabled=true;$('start').textContent='▶ 再開';$('pause').disabled=false;last=Date.now();interval=setInterval(()=>{const now=Date.now();if(now-last>=1000){const steps=Math.floor((now-last)/1000);last+=steps*1000;for(let i=0;i<Math.min(steps,5)&&active;i++)tick();}},200);}
+function pause(){if(!active)return;active=false;clearInterval(interval);interval=null;if('speechSynthesis'in window)speechSynthesis.cancel();$('start').disabled=false;$('pause').disabled=true;$('phase').textContent='PAUSED';$('instruction').textContent='一時停止中。再開ボタンで続けます';}
+function reset(){active=false;started=false;idx=0;left=0;elapsed=0;clearInterval(interval);interval=null;if('speechSynthesis'in window)speechSynthesis.cancel();$('start').disabled=false;$('start').textContent='▶ 開始';$('pause').disabled=true;$('finished').classList.add('hidden');render();}
+$('start').addEventListener('click',start);$('pause').addEventListener('click',pause);$('reset').addEventListener('click',reset);
+$('testvoice').addEventListener('click',()=>{if(!('speechSynthesis'in window)){alert('このブラウザでは音声読み上げに対応していません。Chromeで開いてください。');return;}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance('音声テストです。トレーニングを始めましょう。');u.lang='ja-JP';u.volume=1;u.rate=1;speechSynthesis.speak(u);});
+render();
+})();
+</script>
+<script>
+if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost')) {
+  window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js').catch(() => {}));
+}
+</script>
+</body></html>
