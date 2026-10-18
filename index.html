@@ -12,19 +12,37 @@
 :root{color-scheme:light dark;--bg:#f3f7fa;--card:#fff;--ink:#102b49;--muted:#526579;--line:#d4e0e8;--accent:#123e68;--mint:#bcebe6}
 @media(prefers-color-scheme:dark){:root{--bg:#101820;--card:#1c2935;--ink:#eef6ff;--muted:#b7c6d4;--line:#3b4b59;--accent:#4e9bd5;--mint:#245b5a}}
 *{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Noto Sans JP",sans-serif}
-main{max-width:700px;margin:auto;padding:16px 14px 36px}.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin:12px 0}
+main{max-width:700px;margin:auto;padding:16px 14px 36px}main.settings-mode> :not(#settingsPanel):not(#newRoutinePanel){display:none!important}main.settings-mode{min-height:100vh}.panel{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin:12px 0}
 h1{font-size:clamp(24px,6vw,34px);margin:8px 0 4px}h2{font-size:19px;margin:0 0 10px}.muted{color:var(--muted)}.top{display:flex;justify-content:space-between;gap:10px;align-items:center}
 .hero{text-align:center;background:var(--card);border:2px solid var(--line);border-radius:20px;padding:24px 12px;margin:12px 0}
 .phase{font-size:13px;font-weight:800;letter-spacing:.12em;color:var(--muted)}.name{font-size:clamp(24px,6vw,32px);font-weight:850;margin:8px 0}.counter{font-size:clamp(48px,15vw,76px);font-weight:900;line-height:1.12;font-variant-numeric:tabular-nums;margin:10px 0}.instruction{min-height:48px;line-height:1.6}.bar{height:9px;background:var(--line);border-radius:20px;overflow:hidden;margin-top:12px}.fill{height:100%;width:0;background:var(--accent);transition:width .2s}
 .controls{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}.btn{border:1px solid var(--line);border-radius:12px;padding:14px 8px;font-size:16px;font-weight:800;background:var(--card);color:var(--ink);cursor:pointer}.primary{background:var(--accent);color:white;border-color:transparent}.btn:disabled{opacity:.45}
-.exercise{display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid var(--line)}.exercise:last-child{border-bottom:0}.number{display:grid;place-items:center;width:40px;height:40px;border:1px solid var(--line);border-radius:11px;font-weight:900;flex-shrink:0}.exercise.active{background:color-mix(in srgb,var(--mint) 45%,transparent);border-radius:10px;padding-left:8px;padding-right:8px}.exname{font-weight:800}.exdetail{font-size:13px;color:var(--muted);margin-top:3px}.status{margin-left:auto;font-size:12px;color:var(--muted);white-space:nowrap}
+.exercise{display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid var(--line)}.exercise:last-child{border-bottom:0}.number{display:grid;place-items:center;width:40px;height:40px;border:1px solid var(--line);border-radius:11px;font-weight:900;flex-shrink:0}.exercise.active{background:color-mix(in srgb,var(--mint) 45%,transparent);border-radius:10px;padding-left:8px;padding-right:8px}.protected-editor{opacity:.52;filter:grayscale(.25)}.protected-editor input:disabled,.protected-editor select:disabled,.protected-editor button:disabled{cursor:not-allowed;color:var(--muted)}.exname{font-weight:800}.exdetail{font-size:13px;color:var(--muted);margin-top:3px}.status{margin-left:auto;font-size:12px;color:var(--muted);white-space:nowrap}
 label{display:flex;gap:10px;align-items:center;padding:8px 0}input[type=checkbox]{width:20px;height:20px;accent-color:var(--accent)}.notice{font-size:13px;line-height:1.65;color:var(--muted)}.done{font-weight:800;font-size:22px}.hidden{display:none}
 </style>
 </head>
 <body><main>
-<div class="top"><div><div class="muted">WORKOUT TIMER</div><h1>腹筋トレーニング</h1></div><div style="text-align:right"><div class="muted">休憩</div><strong>30秒</strong></div></div>
+<div class="top"><div><div class="muted">WORKOUT TIMER</div><h1>トレーニングタイマー</h1></div><button class="btn" id="settingsBtn">⚙ 設定</button></div>
+<section class="panel">
+ <h2>今日のメニューを選択</h2>
+ <div class="top" style="gap:8px;align-items:stretch;flex-wrap:wrap">
+  <select id="routineSelect" aria-label="メニューセット" style="flex:1;min-width:180px;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);font-size:16px"></select>
+ </div>
+ <p class="notice">ここではトレーニングするメニューだけを選択します。メニューの追加・編集・保護などは「設定」から行えます。</p>
+</section>
+<section class="panel hidden" id="newRoutinePanel">
+ <div class="top"><h2>新規メニューの追加</h2><button class="btn" id="backToSettings">設定に戻る</button></div>
+ <label style="display:block">メニュー名<input id="newRoutineName" type="text" maxlength="40" placeholder="例：明日のメニュー" style="display:block;width:100%;padding:12px;margin-top:6px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink)"></label>
+ <button class="btn" id="createBlankRoutine" style="width:100%">空のメニューを追加</button>
+ <hr style="border:0;border-top:1px solid var(--line);margin:18px 0">
+ <h2>記事からメニューを作成</h2>
+ <label style="display:block">トレーニング記事のURL<input id="sourceUrl" type="url" placeholder="https://example.com/workout" style="display:block;width:100%;padding:12px;margin-top:6px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink)"></label>
+ <label style="display:block">ページ本文（記事の文章を貼り付け）<textarea id="sourceText" rows="7" placeholder="例：クランチ 15回×3セット\nレッグレイズ 12回×3セット\nプランク 30秒×3セット" style="display:block;width:100%;padding:12px;margin-top:6px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink)"></textarea></label>
+ <button class="btn primary" id="makeFromUrl" style="width:100%">本文・URLからメニュー案を作成</button>
+ <p class="notice">本文を貼り付けた場合はURLの読み込みを行わず、貼り付けた文章を解析します。認識できる種目名と回数・秒数・セット数を抽出します。作成後は「編集」で内容を確認してください。</p>
+</section>
 <div class="panel">
- <div class="top"><strong>4種目・全12セット</strong><strong id="elapsed">経過 00:00</strong></div>
+ <div class="top"><strong id="summary">4種目・全12セット</strong><strong id="elapsed">経過 00:00</strong></div>
  <div class="bar"><div class="fill" id="overall"></div></div>
  <div class="top muted" style="font-size:12px;margin-top:6px"><span id="step">準備完了</span><span id="percent">0%</span></div>
 </div>
@@ -34,62 +52,274 @@ label{display:flex;gap:10px;align-items:center;padding:8px 0}input[type=checkbox
  <div class="top muted" style="font-size:13px;margin-top:12px"><span id="set">全12セット</span><span id="subprogress"> </span></div><div class="bar"><div class="fill" id="setbar"></div></div>
 </section>
 <div class="controls"><button class="btn primary" id="start">▶ 開始</button><button class="btn" id="pause" disabled>Ⅱ 一時停止</button><button class="btn" id="reset">↺ リセット</button></div>
-<section class="panel"><h2>メニュー</h2>
- <div class="exercise" data-ex="0"><div class="number">1</div><div><div class="exname">クランチ</div><div class="exdetail">15回 × 3セット</div></div><div class="status">待機</div></div>
- <div class="exercise" data-ex="1"><div class="number">2</div><div><div class="exname">レッグレイズ</div><div class="exdetail">15回 × 3セット</div></div><div class="status">待機</div></div>
- <div class="exercise" data-ex="2"><div class="number">3</div><div><div class="exname">ツイストクランチ</div><div class="exdetail">左右各15回 × 3セット</div></div><div class="status">待機</div></div>
- <div class="exercise" data-ex="3"><div class="number">4</div><div><div class="exname">プランク</div><div class="exdetail">30秒 × 3セット</div></div><div class="status">待機</div></div>
+<section class="panel"><div class="top"><h2>トレーニングメニュー</h2><button class="btn" id="settingsBtn2">編集</button></div>
+ <div id="menuList"></div>
 </section>
-<section class="panel"><h2>音声設定</h2>
- <label><input type="checkbox" id="voice" checked> 音声案内を有効にする</label>
- <label><input type="checkbox" id="repvoice" checked> 1回ごとに回数を読み上げる</label>
- <button class="btn" id="testvoice" style="width:100%;margin-top:5px">🔊 音声テスト</button>
- <p class="notice">音声テストを押して日本語の読み上げを確認してください。音が出ない場合は、スマホのメディア音量を上げ、ページを開いたままにしてください。</p>
+<section class="panel hidden" id="settingsPanel"><div class="top"><h2>メニュー設定</h2><button class="btn" id="closeSettings">閉じる</button></div>
+ <p class="notice">種目名、回数または秒数、セット数を設定できます。回数種目は「1回あたりの秒数」を設定できます。各セット終了時に「〇セット目終了」と音声案内します。休憩時間は全種目共通です。</p>
+ <button class="btn primary" id="goAddRoutine" style="width:100%;margin-bottom:12px">＋ 新規メニュー追加</button>
+ <button class="btn" id="editSavedRoutine" style="width:100%;margin-bottom:12px">✏ 作成済みメニューを編集</button>
+ <div id="routinePicker" class="panel hidden" style="margin:0 0 12px;padding:12px"><strong>メニューを選択</strong><div id="routinePickerList" style="display:grid;gap:8px;margin-top:10px"></div><button class="btn" id="cancelRoutinePicker" style="width:100%;margin-top:10px">キャンセル</button></div>
+ <div id="routineActions" class="hidden" style="margin-bottom:12px"><p class="notice" id="selectedRoutineLabel">選択中のメニュー：</p><div class="controls" style="margin-top:8px"><button class="btn" id="saveRoutine">このメニューを保存</button><button class="btn" id="renameRoutine">名前変更</button><button class="btn" id="protectRoutine">🔓 保護する</button><button class="btn" id="deleteRoutine">削除</button></div></div>
+ <p class="notice" id="editingRoutineLabel">編集するメニューを選択してください。</p>
+ <div id="routineEditorControls" class="hidden">
+ <div class="top" style="margin:12px 0"><label for="restSeconds">セット間の休憩（秒）</label><input id="restSeconds" type="number" min="0" max="600" value="30" style="width:100px;padding:10px;border-radius:8px;border:1px solid var(--line);background:var(--card);color:var(--ink)"></div>
+ <div id="editList"></div>
+ <section class="panel" style="margin:12px 0 0"><h2>音声設定</h2>
+  <label><input type="checkbox" id="voice" checked> 音声案内を有効にする</label>
+  <label><input type="checkbox" id="repvoice" checked> 1回ごとに回数を読み上げる</label>
+  <label><input type="checkbox" id="noRepVoice"> カウントを読み上げない</label>
+  <label for="voiceStyle" style="display:block">読み上げる声
+   <select id="voiceStyle" style="display:block;width:100%;padding:11px;margin-top:6px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)">
+    <option value="female-soft">女性</option>
+    <option value="male-calm">男性</option>
+    <option value="recorded-voice">録音した声</option>
+   </select>
+  </label>
+  <button class="btn" id="testvoice" style="width:100%;margin-top:5px">🔊 選択した声を試聴</button>
+  <p class="notice">標準音声は女性・男性の各1種類です。端末・ブラウザに搭載された日本語音声を基に声の高さや速度を調整して再生します。利用できる声や実際の声質は端末によって異なります。録音した声色を基にAI音声を作成したい場合に限り、CoeFontを利用します。CoeFontで作成した音声の利用条件・ダウンロード可否はCoeFont側で確認してください。このアプリはCoeFont APIには接続しません。</p>
+  <div id="savedVoiceControls" class="panel hidden" style="margin-top:12px">
+   <h3 style="font-size:16px;margin-top:0">録音した声を選択</h3>
+   <label for="savedVoiceProfile">保存済みの音声セット</label>
+   <select id="savedVoiceProfile" style="display:block;width:100%;padding:11px;margin:6px 0 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)"></select>
+   <button class="btn primary" id="newVoiceProfile" type="button" style="width:100%">＋ 新規収録</button>
+   <div id="voiceProfileEditor" class="hidden" style="margin-top:12px">
+    <label for="voiceProfileName">音声セット名（例：音声1）<input id="voiceProfileName" maxlength="40" placeholder="音声1" style="display:block;width:100%;padding:11px;margin-top:5px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)"></label>
+    <p class="notice">各項目の「録音」を押し、表示された文章を読み上げてください。録音停止後、その項目の音声が自動保存されます。全項目を録音したら「音声セットを保存」を押してください。</p>
+    <div id="voiceCaptureList"></div>
+    <button class="btn primary" id="saveVoiceProfile" type="button" style="width:100%;margin-top:10px">音声セットを保存</button>
+    <p id="voiceCaptureStatus" class="notice" role="status"></p>
+   </div>
+  </div>
+  <div id="recordingScreen" class="panel hidden" style="margin-top:12px">
+   <h2>自分の声を録音</h2>
+   <p class="notice">録音した声はCoeFontで自分の声に近いAI音声を作るための素材候補です。録音ファイルをダウンロードし、CoeFont側で利用できるか確認してください。録音しただけでアプリ内の声が自動でAI音声に変わるわけではありません。</p>
+   <h3 style="font-size:16px">録音のやり方</h3>
+   <ol style="padding-left:22px;line-height:1.7"><li>静かな場所で、マイクに近づきすぎずに録音します。</li><li>「録音開始」を押すと、画面の案内が読み上げられます。その後、表示された文章を普段の声で自然にはっきり読み上げてください。</li><li>読み終えたら「録音停止」を押して試聴します。</li><li>問題なければ「録音をダウンロード」を押し、CoeFontで利用できるか確認してください。</li></ol>
+   <div class="notice" style="background:var(--bg);font-size:18px;line-height:1.8"><strong>読み上げる文章</strong><p style="margin:8px 0">こんにちは。これからトレーニングを始めます。呼吸を止めず、無理のないペースで動きましょう。1、2、3、4、5。セット終了です。お疲れ様でした。</p></div>
+   <div class="controls"><button class="btn primary" id="recordStart">● 録音開始</button><button class="btn" id="recordStop" disabled>■ 録音停止</button><button class="btn" id="recordPlay" disabled>▶ 録音を試聴</button><button class="btn" id="recordDownload" disabled>↓ 録音をダウンロード</button><button class="btn" id="recordBack">音声設定に戻る</button></div>
+   <p id="recordStatus" class="notice" role="status">録音開始を押すと、マイクの使用許可を求めます。</p><audio id="recordPreview" controls class="hidden" style="width:100%;margin-top:8px"></audio>
+   <p><a href="https://coefont.cloud/" target="_blank" rel="noopener noreferrer">CoeFont公式サイトを開く</a></p>
+  </div>
+  <div class="controls" style="margin-top:12px"><button class="btn" id="addExercise">＋ 種目追加</button><button class="btn primary" id="saveSettings">設定を保存</button><button class="btn" id="restoreDefaults">初期設定</button></div>
+ <p class="notice">種目・休憩時間・音声設定を確認してから「設定を保存」を押してください。設定はメニューごとにこの端末のブラウザへ保存されます。実行中は設定を変更できません。</p>
+ </div>
+
+ </section>
 </section>
 <section class="panel hidden" id="finished"><div class="done">トレーニング完了！</div><p>お疲れさまでした。ゆっくり呼吸を整えてください。</p></section>
-<p class="notice">回数種目は1回約2秒でカウントし、1回目から毎回「1回、2回、3回…」と音声で読み上げます。ツイストクランチは左右交互に合計30回（左右各15回）です。動作が追いつかない場合は一時停止し、痛みが出たら中止してください。</p>
+<p class="notice">回数種目は1回約2秒でカウントします。設定から種目の追加・削除、回数・秒数・セット数・休憩時間を変更できます。痛みが出たら中止してください。</p>
 </main>
 <script>
 (()=>{
 const $=id=>document.getElementById(id);
-const exercises=[
- {name:'クランチ',reps:15,sec:2,tip:'肩甲骨が浮く程度に上体を丸める'},
- {name:'レッグレイズ',reps:15,sec:2,tip:'腰を床につけたまま脚をゆっくり上げ下げ'},
- {name:'ツイストクランチ',reps:30,sec:2,tip:'左右交互に。反対側の肘を膝へ近づける'},
- {name:'プランク',reps:30,sec:1,tip:'頭からかかとまで一直線。呼吸を止めない'}
+const defaults=[
+ {name:'クランチ',mode:'reps',value:15,secondsPerRep:2,sets:3,tip:'肩甲骨が浮く程度に上体を丸める'},
+ {name:'レッグレイズ',mode:'reps',value:15,secondsPerRep:2,sets:3,tip:'腰を床につけたまま脚をゆっくり上げ下げ'},
+ {name:'ツイストクランチ（左右交互）',mode:'reps',value:30,secondsPerRep:2,sets:3,tip:'左右交互に。反対側の肘を膝へ近づける'},
+ {name:'プランク',mode:'time',value:30,sets:3,tip:'頭からかかとまで一直線。呼吸を止めない'}
 ];
-let seq=[];exercises.forEach((e,i)=>{for(let s=1;s<=3;s++){seq.push({i,s,type:'work',duration:e.reps*e.sec});if(!(i===3&&s===3))seq.push({i,s,type:'rest',duration:30});}});
-let idx=0,left=0,elapsed=0,active=false,started=false,interval=null,last=0,lastSpoken='',lastRep=0;
-function say(msg){if(!$('voice').checked)return;if(!('speechSynthesis'in window)){ $('instruction').textContent='このブラウザは音声読み上げに対応していません';return;}try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(msg);u.lang='ja-JP';u.rate=1.0;u.volume=1;speechSynthesis.speak(u);}catch(e){}}
+let exercises=loadExercises(),restSeconds=loadRest(),seq=[],idx=0,left=0,elapsed=0,active=false,started=false,interval=null,last=0,lastSpoken='',lastRep=0,shownRep=0,waitingForFinalRep=false;
+let routines=loadRoutines(),activeRoutine=Object.keys(routines)[0]||'腹筋メニュー';
+function loadExercises(){try{const v=JSON.parse(localStorage.getItem('workoutExercises'));if(Array.isArray(v)&&v.length)return v.map(cleanExercise)}catch(e){}return defaults.map(x=>({...x}));}
+function loadRest(){const n=Number(localStorage.getItem('workoutRest'));return Number.isFinite(n)&&n>=0?Math.min(600,n):30;}
+function cleanExercise(e){return {name:String(e.name||'新しい種目').slice(0,60),mode:e.mode==='time'?'time':'reps',value:clamp(e.value,1,999),secondsPerRep:clamp(e.secondsPerRep??2,1,10),sets:clamp(e.sets,1,30),tip:String(e.tip||'無理のないペースで動く').slice(0,100)}}
+function clamp(v,min,max){v=Math.round(Number(v)||min);return Math.max(min,Math.min(max,v));}
+function saveLocal(){localStorage.setItem('workoutExercises',JSON.stringify(exercises));localStorage.setItem('workoutRest',String(restSeconds));}
+function loadRoutines(){try{const saved=JSON.parse(localStorage.getItem('workoutRoutines'));if(saved&&typeof saved==='object'&&Object.keys(saved).length){const out={};Object.entries(saved).forEach(([k,v])=>{if(v&&Array.isArray(v.exercises)&&v.exercises.length)out[k]={exercises:v.exercises.map(cleanExercise),restSeconds:clamp(v.restSeconds??30,0,600),protected:!!v.protected,voiceEnabled:v.voiceEnabled!==false,repVoice:v.repVoice!==false,voiceStyle:['female-soft','male-calm','recorded-voice'].includes(v.voiceStyle)?v.voiceStyle:'female-soft'}});if(Object.keys(out).length)return out;}}catch(e){}return {'腹筋メニュー':{exercises:loadExercises(),restSeconds:loadRest(),protected:false,voiceEnabled:true,repVoice:true,voiceStyle:'female-soft'}};}
+function saveRoutines(){localStorage.setItem('workoutRoutines',JSON.stringify(routines));}
+function applyRoutineVoiceSettings(name){const r=routines[name]||{};$('voice').checked=r.voiceEnabled!==false;$('repvoice').checked=r.repVoice!==false;$('noRepVoice').checked=!$('repvoice').checked;$('voiceStyle').value=['female-soft','male-calm','recorded-voice'].includes(r.voiceStyle)?r.voiceStyle:'female-soft';}
+function persistRoutineVoiceSettings(){const name=editingRoutineName||activeRoutine;if(!name||!routines[name]||routines[name].protected)return;routines[name].voiceEnabled=$('voice').checked;routines[name].repVoice=$('repvoice').checked;routines[name].voiceStyle=$('voiceStyle').value==='recorded-voice'?'recorded-voice':$('voiceStyle').value;saveRoutines();}
+function renderRoutineSelect(){const sel=$('routineSelect');sel.innerHTML='';Object.keys(routines).forEach(name=>{const op=document.createElement('option');op.value=name;op.textContent=(routines[name].protected?'🔒 ':'')+name;sel.appendChild(op)});if(!routines[activeRoutine])activeRoutine=Object.keys(routines)[0];sel.value=activeRoutine;if($('routineActions')&&!$('routineActions').classList.contains('hidden'))updateRoutineActions();}
+function storeCurrentRoutine(){const old=routines[activeRoutine]||{};routines[activeRoutine]={...old,exercises:exercises.map(e=>({...e})),restSeconds,protected:!!old.protected,voiceEnabled:$('voice').checked,repVoice:$('repvoice').checked,voiceStyle:$('voiceStyle').value==='recorded-voice'?'recorded-voice':$('voiceStyle').value};saveRoutines();saveLocal();renderRoutineSelect();}
+function switchRoutine(name){if(active||started){alert('メニューを切り替えるには、先にリセットしてください');renderRoutineSelect();return}if(!routines[name])return;activeRoutine=name;exercises=routines[name].exercises.map(e=>({...e}));restSeconds=routines[name].restSeconds;applyRoutineVoiceSettings(name);saveLocal();buildSeq();renderRoutineSelect();renderMenu();render();}
+
+function buildSeq(){seq=[];exercises.forEach((e,i)=>{for(let s=1;s<=e.sets;s++){seq.push({i,s,type:'work',duration:e.mode==='time'?e.value:e.value*(e.secondsPerRep||2)});if(restSeconds>0&&(i<exercises.length-1||s<e.sets))seq.push({i,s,type:'rest',duration:restSeconds});}});}
+let availableVoices=[];
+function refreshVoices(){if(!('speechSynthesis'in window))return;availableVoices=speechSynthesis.getVoices().filter(v=>/^ja(-|_)/i.test(v.lang)||/japanese|日本語/i.test(v.name));}
+function loadVoiceStyle(){try{const old=localStorage.getItem('workoutVoiceStyle')||'female-soft';const valid=['female-soft','male-calm','recorded-voice'];$('voiceStyle').value=valid.includes(old)?old:({'female':'female-soft','male':'male-calm','personal':'recorded-voice','neutral':'female-soft'}[old]||'female-soft')}catch(e){$('voiceStyle').value='female-soft'}}
+function chooseVoice(){if(!('speechSynthesis'in window))return {voice:null,pitch:1,rate:1};refreshVoices();const all=availableVoices.length?availableVoices:speechSynthesis.getVoices();const japanese=all.filter(v=>/^ja(-|_)/i.test(v.lang)||/japanese|日本語/i.test(v.name));const pool=japanese.length?japanese:all;const rawStyle=((editingRoutineName&&$('voiceStyle')?.value)||routines[activeRoutine]?.voiceStyle||$('voiceStyle')?.value||'female-soft');const style=rawStyle==='coefont-guide'?(localStorage.getItem('workoutVoiceStyleStandard')||'female-soft'):rawStyle;const female=style.startsWith('female');const energetic=style.endsWith('energetic');let voice=null;let pitch=female?(energetic?1.25:1.12):(energetic?.88:.78);let rate=energetic?1.12:(style==='male-calm'?.9:1);const patterns=female?[/female|woman|nanami|kyoko|haruka|ayumi|sayaka|mizuki|女性/i,/google 日本語|microsoft.*(nanami|ayumi|haruka|kyoko)/i]:[/male|man|keita|otoya|ichiro|takumi|男性/i,/microsoft.*(keita|ichiro|takumi)/i];for(const re of patterns){voice=pool.find(v=>re.test(v.name));if(voice)break}if(!voice)voice=pool.find(v=>v.default)||pool[0]||null;return {voice,pitch,rate};}
+function configureUtterance(u){u.lang='ja-JP';u.rate=1;u.volume=1;const selected=chooseVoice();if(selected.voice)u.voice=selected.voice;u.pitch=selected.pitch;u.rate=selected.rate||1;return u;}
+function say(msg,onDone,clipKey){if(!$('voice').checked){if(onDone)onDone();return}const style=(routines[activeRoutine]?.voiceStyle)||$('voiceStyle')?.value||'female-soft';let key=clipKey||clipKeyForMessage(msg);if(style==='recorded-voice'){if(msg==='スタート'||/開始$/.test(msg))key=recordedProfileKey('start')||key;else if(/^お疲れ様でした$/.test(msg))key=recordedProfileKey('finish')||key;else if(msg==='30秒休憩します')key=recordedProfileKey('rest')||key;else if(/セット目終了$/.test(msg))key=recordedProfileKey('set:'+((String(msg).match(/^(\d+)セット目終了$/)||[])[1]||''))||recordedProfileKey('setEnd')||key;}const playClipFirst=style==='recorded-voice'&&!!key;const speakWithSelectedVoice=()=>{if(!('speechSynthesis'in window)){if(onDone)onDone();return}try{const u=configureUtterance(new SpeechSynthesisUtterance(msg));u.onend=()=>{if(onDone)onDone()};u.onerror=()=>{if(onDone)onDone()};speechSynthesis.speak(u)}catch(e){if(onDone)onDone()}};if(!playClipFirst){speakWithSelectedVoice();return}playStoredClip(key).then(played=>{if(played){if(onDone)onDone();return}speakWithSelectedVoice()})}
+function clipKeyForMessage(msg){if(msg==='お疲れ様でした')return 'finish';if(msg==='30秒休憩します')return 'rest';const m=String(msg).match(/^(\d+)セット目終了$/);if(m)return 'set:'+m[1];if(/セット目終了$/.test(msg))return 'setEnd';return null}
+function sayRep(n,onDone){shownRep=n;render();if(!$('voice').checked||!$('repvoice').checked){if(onDone)onDone();return}const style=(routines[activeRoutine]?.voiceStyle)||$('voiceStyle')?.value||'female-soft';if(style==='recorded-voice'){const key=recordedProfileKey('count:'+n);if(key){playStoredClip(key).then(ok=>{if(!ok){if('speechSynthesis'in window){const u=configureUtterance(new SpeechSynthesisUtterance(String(n)));u.onend=()=>onDone&&onDone();u.onerror=()=>onDone&&onDone();speechSynthesis.speak(u)}else if(onDone)onDone()}else if(onDone)onDone()});return}}if(!('speechSynthesis'in window)){if(onDone)onDone();return}try{const spoken=n%5===0?`${n}回`:String(n);const u=configureUtterance(new SpeechSynthesisUtterance(spoken));u.onend=()=>{if(onDone)onDone()};u.onerror=()=>{if(onDone)onDone()};speechSynthesis.speak(u)}catch(e){if(onDone)onDone()}}
+const AUDIO_DB='workout-audio-clips-v1',AUDIO_STORE='clips';let audioDbPromise=null,currentAudio=null;
+function openAudioDb(){if(!('indexedDB'in window))return Promise.reject(new Error('音声保存非対応'));if(audioDbPromise)return audioDbPromise;audioDbPromise=new Promise((resolve,reject)=>{const req=indexedDB.open(AUDIO_DB,1);req.onupgradeneeded=()=>{if(!req.result.objectStoreNames.contains(AUDIO_STORE))req.result.createObjectStore(AUDIO_STORE,{keyPath:'key'})};req.onsuccess=()=>resolve(req.result);req.onerror=()=>reject(req.error)});return audioDbPromise}
+async function putStoredClip(key,name,blob){const db=await openAudioDb();return new Promise((resolve,reject)=>{const tx=db.transaction(AUDIO_STORE,'readwrite');tx.objectStore(AUDIO_STORE).put({key,name,blob,updatedAt:Date.now()});tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)})}
+async function getStoredClip(key){const db=await openAudioDb();return new Promise((resolve,reject)=>{const q=db.transaction(AUDIO_STORE,'readonly').objectStore(AUDIO_STORE).get(key);q.onsuccess=()=>resolve(q.result||null);q.onerror=()=>reject(q.error)})}
+async function allStoredClips(){const db=await openAudioDb();return new Promise((resolve,reject)=>{const q=db.transaction(AUDIO_STORE,'readonly').objectStore(AUDIO_STORE).getAll();q.onsuccess=()=>resolve(q.result||[]);q.onerror=()=>reject(q.error)})}
+async function deleteStoredClip(key){const db=await openAudioDb();return new Promise((resolve,reject)=>{const tx=db.transaction(AUDIO_STORE,'readwrite');tx.objectStore(AUDIO_STORE).delete(key);tx.oncomplete=resolve;tx.onerror=()=>reject(tx.error)})}
+async function playStoredClip(key){if(!key)return false;let url=null;try{let item=await getStoredClip(key);if(!item&&key.startsWith('set:'))item=await getStoredClip('setEnd');if(!item||!item.blob)return false;if(currentAudio){currentAudio.pause();currentAudio=null}url=URL.createObjectURL(item.blob);const audio=new Audio(url);currentAudio=audio;await new Promise((resolve,reject)=>{audio.onended=resolve;audio.onerror=reject;const p=audio.play();if(p&&p.catch)p.catch(reject)});if(currentAudio===audio)currentAudio=null;URL.revokeObjectURL(url);return true}catch(e){if(url)URL.revokeObjectURL(url);if(currentAudio){try{currentAudio.pause()}catch(_){}currentAudio=null}return false}}
+function clipLabel(key){if(key==='finish')return '終了時：お疲れ様でした';if(key==='setEnd')return 'セット終了（共通）';if(key.startsWith('set:'))return key.slice(4)+'セット目終了';if(key.startsWith('rep:'))return 'カウント '+key.slice(4);return key}
+function clipKeyFromFilename(name){const n=name.toLowerCase();const setNum=n.match(/(?:set|セット)[^0-9]{0,8}(\d{1,2})/i)||n.match(/(\d{1,2})[^0-9]{0,5}(?:set|セット)/i);if(setNum&&Number(setNum[1])>=1&&Number(setNum[1])<=30)return 'set:'+Number(setNum[1]);if(/set|セット|終了/.test(n)&&!/お疲れ|完了/.test(n))return 'setEnd';return 'finish'}
+async function renderClipList(){const el=$('clipList');try{const items=await allStoredClips();if(!items.length){el.textContent='まだ音声は登録されていません。';return}el.innerHTML='';items.sort((a,b)=>a.key.localeCompare(b.key,undefined,{numeric:true})).forEach(item=>{const row=document.createElement('div');row.style.cssText='display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--line);padding:8px 0';const label=document.createElement('span');label.style.flex='1';label.textContent=clipLabel(item.key)+' — '+item.name;const play=document.createElement('button');play.className='btn';play.textContent='試聴';play.style.padding='8px';play.addEventListener('click',async()=>{if(!await playStoredClip(item.key))alert('音声を再生できませんでした')});const del=document.createElement('button');del.className='btn';del.textContent='削除';del.style.padding='8px';del.addEventListener('click',async()=>{if(confirm('この音声を削除しますか？')){await deleteStoredClip(item.key);renderClipList()}});row.append(label,play,del);el.appendChild(row)})}catch(e){el.textContent='保存機能を初期化できませんでした。GitHub PagesのHTTPSで開いてください。'}}
+async function importClip(){const file=$('clipFile').files?.[0];if(!file){alert('音声ファイルを選択してください');return}if(!file.type.startsWith('audio/')&&!/\.(mp3|wav|m4a|ogg|aac|webm)$/i.test(file.name)){alert('音声ファイルを選択してください');return}const key=clipKeyFromFilename(file.name);try{await putStoredClip(key,file.name,file);$('clipStatus').textContent='保存しました：'+clipLabel(key)+'（ファイル名から場面を自動判定。カウントには適用しません）';$('clipFile').value='';await renderClipList()}catch(e){alert('音声を保存できませんでした。ブラウザの保存容量や設定を確認してください。')}}
+
+$('noRepVoice').addEventListener('change',()=>{$('repvoice').checked=!$('noRepVoice').checked});$('repvoice').addEventListener('change',()=>{$('noRepVoice').checked=!$('repvoice').checked});$('noRepVoice').checked=!$('repvoice').checked;
 function time(n){return String(Math.floor(n/60)).padStart(2,'0')+':'+String(n%60).padStart(2,'0')}
-function render(){
- $('elapsed').textContent='経過 '+time(elapsed);
- $('overall').style.width=(idx/seq.length*100)+'%';$('percent').textContent=Math.floor(idx/seq.length*100)+'%';
- $('step').textContent=started?(idx>=seq.length?'完了':`進行 ${idx+1} / ${seq.length}`):'準備完了';
- document.querySelectorAll('.exercise').forEach((el,i)=>{const current=started&&idx<seq.length&&seq[idx].i===i;el.classList.toggle('active',current);const done=started&&(idx>=seq.length||seq.slice(0,idx).some(b=>b.i===i&&b.type==='work'));el.querySelector('.status').textContent=current?'実施中':done?'完了':'待機';});
- if(!started){$('phase').textContent='READY';$('name').textContent='準備完了';$('counter').textContent='スタート！';$('instruction').textContent='開始を押すと自動で進みます';$('set').textContent='全12セット';$('setbar').style.width='0%';return;}
- if(idx>=seq.length){$('phase').textContent='COMPLETE';$('name').textContent='全種目完了';$('counter').textContent='終了！';$('instruction').textContent='お疲れさまでした';$('set').textContent='全メニュー完了';$('setbar').style.width='100%';return;}
- const b=seq[idx],e=exercises[b.i];$('name').textContent=e.name;$('phase').textContent=b.type==='rest'?'REST / 休憩':'WORK / トレーニング';
- $('counter').textContent=b.type==='rest'?left+'秒':b.i===3?left+'秒':`${Math.min(e.reps,Math.floor((b.duration-left)/e.sec)+1)} / ${e.reps}`;
- $('instruction').textContent=b.type==='rest'?(idx+1<seq.length?(seq[idx+1].i===b.i?'次のセットに備えて休憩':'次は'+exercises[seq[idx+1].i].name):'最後の休憩'):e.tip;
- $('set').textContent=`セット ${b.s} / 3`+(b.type==='rest'?' ・休憩中':'');$('subprogress').textContent=b.type==='rest'?'休憩':`目安 ${e.reps}回`;
- $('setbar').style.width=((b.duration-left)/b.duration*100)+'%';
+function totalSets(){return exercises.reduce((a,e)=>a+e.sets,0)}
+function renderMenu(){ $('menuList').innerHTML='';exercises.forEach((e,i)=>{const el=document.createElement('div');el.className='exercise';el.dataset.ex=i;el.innerHTML=`<div class="number">${i+1}</div><div><div class="exname"></div><div class="exdetail"></div></div><div class="status">待機</div>`;el.querySelector('.exname').textContent=e.name;el.querySelector('.exdetail').textContent=`${e.mode==='time'?e.value+'秒':e.value+'回'} × ${e.sets}セット`; $('menuList').appendChild(el)});$('summary').textContent=`${activeRoutine}：${exercises.length}種目・全${totalSets()}セット（休憩${restSeconds}秒）`;}
+function renderEditor(){const list=$('editList');list.innerHTML='';exercises.forEach((e,i)=>{const card=document.createElement('div');card.className='panel';card.style.margin='10px 0';card.innerHTML=`<div class="top"><strong>種目 ${i+1}</strong><button class="btn remove" type="button">削除</button></div><label style="display:block">種目名<input class="ename" maxlength="60" value="" style="display:block;width:100%;margin-top:5px;padding:11px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)"></label><div class="gridrow" style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><label style="display:block">カウント方式<select class="mode" style="display:block;width:100%;padding:11px;margin-top:5px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)"><option value="reps">回数</option><option value="time">秒数</option></select></label><label style="display:block"><span class="valueLabel">回数</span><input class="value" type="number" min="1" max="999" value="" style="display:block;width:100%;padding:11px;margin-top:5px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)"></label><label class="repSpeedWrap" style="display:block">1回あたりの秒数<input class="secondsPerRep" type="number" min="1" max="10" value="2" style="display:block;width:100%;padding:11px;margin-top:5px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)"></label><label style="display:block">セット数<input class="sets" type="number" min="1" max="30" value="" style="display:block;width:100%;padding:11px;margin-top:5px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)"></label><label style="display:block">画面のポイント（任意）<input class="tip" maxlength="100" value="" style="display:block;width:100%;padding:11px;margin-top:5px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)"></label></div>`;card.querySelector('.ename').value=e.name;card.querySelector('.mode').value=e.mode;card.querySelector('.value').value=e.value;card.querySelector('.sets').value=e.sets;card.querySelector('.secondsPerRep').value=e.secondsPerRep||2;card.querySelector('.tip').value=e.tip;const updateLabel=()=>{const reps=card.querySelector('.mode').value==='reps';card.querySelector('.valueLabel').textContent=reps?'回数':'秒数';card.querySelector('.repSpeedWrap').style.display=reps?'block':'none'};updateLabel();card.querySelector('.mode').addEventListener('change',updateLabel);card.querySelector('.remove').addEventListener('click',()=>{if(exercises.length===1){alert('種目は最低1つ必要です');return}exercises.splice(i,1);renderEditor()});list.appendChild(card)});}
+function setEditorLocked(locked){const list=$('editList');list.classList.toggle('protected-editor',!!locked);list.querySelectorAll('input,select,button').forEach(el=>el.disabled=!!locked);$('restSeconds').disabled=!!locked;$('addExercise').disabled=!!locked;$('saveSettings').disabled=!!locked;$('restoreDefaults').disabled=!!locked;}
+function render(){ $('elapsed').textContent='経過 '+time(elapsed);$('overall').style.width=(idx/Math.max(1,seq.length)*100)+'%';$('percent').textContent=Math.floor(idx/Math.max(1,seq.length)*100)+'%';$('step').textContent=started?(idx>=seq.length?'完了':`進行 ${idx+1} / ${seq.length}`):'準備完了';document.querySelectorAll('.exercise').forEach((el,i)=>{const current=started&&idx<seq.length&&seq[idx].i===i;el.classList.toggle('active',current);const done=started&&(idx>=seq.length||seq.slice(0,idx).some(b=>b.i===i&&b.type==='work'));el.querySelector('.status').textContent=current?'実施中':done?'完了':'待機'});if(!started){$('phase').textContent='READY';$('name').textContent='準備完了';$('counter').textContent='スタート！';$('instruction').textContent='開始を押すと自動で進みます';$('set').textContent=`全${totalSets()}セット`;$('setbar').style.width='0%';return}if(idx>=seq.length){$('phase').textContent='COMPLETE';$('name').textContent='全種目完了';$('counter').textContent='終了！';$('instruction').textContent='お疲れさまでした';$('set').textContent='全メニュー完了';$('setbar').style.width='100%';return}const b=seq[idx],e=exercises[b.i];$('name').textContent=e.name;$('phase').textContent=b.type==='rest'?'REST / 休憩':(e.mode==='time'?'WORK / 秒数':'WORK / 回数');$('counter').textContent=b.type==='rest'?left+'秒':e.mode==='time'?left+'秒':`${shownRep} / ${e.value}`;$('instruction').textContent=b.type==='rest'?(idx+1<seq.length?'次のセットに備えて休憩':'休憩中'):e.tip;$('set').textContent=`セット ${b.s} / ${e.sets}`+(b.type==='rest'?' ・休憩中':'');$('subprogress').textContent=b.type==='rest'?'休憩':e.mode==='time'?`目標 ${e.value}秒`:`目標 ${e.value}回`;$('setbar').style.width=((b.duration-left)/b.duration*100)+'%'}
+function enter(){if(idx>=seq.length){complete();return}const b=seq[idx],e=exercises[b.i];left=b.duration;lastSpoken='';lastRep=0;shownRep=0;waitingForAnnouncement=true;render();if(b.type==='work'){say('スタート',()=>{waitingForAnnouncement=false;last=Date.now();render()})}else if(b.type==='rest'){say(restSeconds+'秒休憩します',()=>{waitingForAnnouncement=false;last=Date.now();render()})}else{waitingForAnnouncement=false;last=Date.now()}}
+function complete(){active=false;clearInterval(interval);interval=null;waitingForFinalRep=false;idx=seq.length;$('start').disabled=true;$('pause').disabled=true;$('finished').classList.remove('hidden');say('お疲れ様でした');render()}
+function advanceStep(){waitingForFinalRep=false;idx++;if(idx>=seq.length){complete();return}enter()}
+function tick(){if(!active||waitingForFinalRep||waitingForAnnouncement)return;elapsed++;left--;const b=seq[idx],e=exercises[b.i];if(b.type==='work'&&e.mode==='reps'&&$('repvoice').checked){const n=Math.min(e.value,Math.floor((b.duration-left)/(e.secondsPerRep||2)));if(n>lastRep){lastRep=n;const final=n>=e.value&&left<=0;if(final){waitingForFinalRep=true;sayRep(n,()=>say(`${b.s}セット目終了`,advanceStep));}else sayRep(n);}}if(left<=0){if(waitingForFinalRep)return;if(b.type==='work'){waitingForFinalRep=true;say(`${b.s}セット目終了`,advanceStep);return}advanceStep();return}render()}
+function start(){if(active)return;if(!started){const selectedName=$('routineSelect').value;if(!routines[selectedName]){alert('トレーニングメニューを選択してください');return}activeRoutine=selectedName;exercises=routines[selectedName].exercises.map(e=>({...e}));restSeconds=routines[selectedName].restSeconds;applyRoutineVoiceSettings(selectedName);saveLocal();renderRoutineSelect();renderMenu();buildSeq();started=true;idx=0;elapsed=0;$('finished').classList.add('hidden');render();enter()}active=true;$('start').disabled=true;$('start').textContent='▶ 再開';$('pause').disabled=false;last=Date.now();interval=setInterval(()=>{const now=Date.now();if(now-last>=1000){const steps=Math.floor((now-last)/1000);last+=steps*1000;for(let i=0;i<Math.min(steps,5)&&active;i++)tick()}},200)}
+function pause(){if(!active)return;active=false;clearInterval(interval);interval=null;if('speechSynthesis'in window)speechSynthesis.cancel();waitingForAnnouncement=false;$('start').disabled=false;$('pause').disabled=true;$('phase').textContent='PAUSED';$('instruction').textContent='一時停止中。再開ボタンで続けます'}
+function reset(){active=false;started=false;waitingForFinalRep=false;waitingForAnnouncement=false;idx=0;left=0;elapsed=0;clearInterval(interval);interval=null;if('speechSynthesis'in window)speechSynthesis.cancel();$('start').disabled=false;$('start').textContent='▶ 開始';$('pause').disabled=true;$('finished').classList.add('hidden');render()}
+function openSettings(){if(active||started){alert('設定を変更するには、先にリセットしてください');return}document.querySelector('main').classList.add('settings-mode');$('newRoutinePanel').classList.add('hidden');$('routineEditorControls').classList.add('hidden');$('restSeconds').value=restSeconds;editingRoutineName=null;$('routineActions').classList.add('hidden');$('routinePicker').classList.add('hidden');$('editingRoutineLabel').textContent='「作成済みメニューを編集」からメニューを選択してください。';$('editList').innerHTML='';$('settingsPanel').classList.remove('hidden');window.scrollTo({top:0,behavior:'instant'})}
+function saveSettings(){if(active||started){alert('設定を変更するには、先にリセットしてください');return}if(!editingRoutineName||!routines[editingRoutineName]){alert('先に「作成済みメニューを編集」から編集するメニューを選択してください');return}if(routines[editingRoutineName].protected){alert('このメニューは保護中です。設定を変更するには、先に保護を解除してください');return}const cards=[...$('editList').children];const next=[];for(const c of cards){const name=c.querySelector('.ename').value.trim();if(!name){alert('種目名を入力してください');return}const mode=c.querySelector('.mode').value;const value=Number(c.querySelector('.value').value),sets=Number(c.querySelector('.sets').value);if(!Number.isFinite(value)||value<1||value>999||!Number.isInteger(value)||!Number.isInteger(sets)||sets<1||sets>30){alert('回数・秒数は1〜999、セット数は1〜30の整数で入力してください');return}const secondsPerRep=Number(c.querySelector('.secondsPerRep').value||2);if(!Number.isInteger(secondsPerRep)||secondsPerRep<1||secondsPerRep>10){alert('1回あたりの秒数は1〜10の整数で入力してください');return}next.push(cleanExercise({name,mode,value,sets,secondsPerRep,tip:c.querySelector('.tip').value.trim()||'無理のないペースで動く'}))}if(!next.length){alert('種目を1つ以上登録してください');return}const r=Number($('restSeconds').value);if(!Number.isInteger(r)||r<0||r>600){alert('休憩秒数は0〜600の整数で入力してください');return}exercises=next;restSeconds=r;activeRoutine=editingRoutineName;persistRoutineVoiceSettings();storeCurrentRoutine();buildSeq();renderMenu();$('editingRoutineLabel').textContent='保存しました：'+activeRoutine;$('settingsPanel').classList.add('hidden');document.querySelector('main').classList.remove('settings-mode');render()}
+$('routineSelect').addEventListener('change',e=>switchRoutine(e.target.value));
+$('protectRoutine').addEventListener('click',()=>{const n=editingRoutineName||activeRoutine;if(active||started){alert('保護設定を変えるには、先にリセットしてください');return}if(!routines[n])return;routines[n].protected=!routines[n].protected;saveRoutines();renderRoutineSelect();updateRoutineActions();if(routines[n].protected){exercises=routines[n].exercises.map(e=>({...e}));restSeconds=routines[n].restSeconds;$('restSeconds').value=restSeconds;renderEditor();setEditorLocked(true);$('editingRoutineLabel').textContent='🔒 保護中です。内容は表示していますが編集できません。編集するには「保護を解除」を押してください。'}else{exercises=routines[n].exercises.map(e=>({...e}));restSeconds=routines[n].restSeconds;$('restSeconds').value=restSeconds;renderEditor();setEditorLocked(false);$('editingRoutineLabel').textContent='保護を解除しました。編集後に「設定を保存」を押してください。'}alert(routines[n].protected?'メニューを保護しました。内容は表示したまま編集を禁止しました。':'保護を解除しました。編集・削除・名前変更が可能です。')});
+function parseWorkoutText(text){
+  const patterns=[
+    ['ツイストクランチ',/ツイスト\s*クランチ|twist(?:ed)?\s*crunch/i],
+    ['バイシクルクランチ',/バイシクル\s*クランチ|bicycle\s*crunch/i],
+    ['マウンテンクライマー',/マウンテン\s*クライマー|mountain\s*climber/i],
+    ['レッグレイズ',/レッグ\s*レイズ|leg\s*raises?/i],
+    ['クランチ',/(?<!ツイスト)(?<!バイシクル)クランチ|(?<!twist)(?<!bicycle)\bcrunch\b/i],
+    ['プランク',/プランク|\bplank\b/i],
+    ['スクワット',/スクワット|\bsquats?\b/i],
+    ['腕立て伏せ',/腕立て伏せ|プッシュアップ|腕立て|push[- ]?ups?/i],
+    ['ヒップリフト',/ヒップリフト|グルートブリッジ|glute bridge/i],
+    ['バードドッグ',/バードドッグ|bird dog/i],
+    ['ランジ',/ランジ|\blunges?\b/i],
+    ['バーピー',/バーピー|\bburpees?\b/i]
+  ];
+  const lines=String(text||'').replace(/\r/g,'\n').split(/[\n。;；]+/).map(x=>x.trim()).filter(Boolean);
+  const out=[]; const seen=new Set();
+  for(const line of lines){
+    for(const [name,re] of patterns){
+      if(!re.test(line)||seen.has(name)) continue;
+      // Read numbers only from the matching line so unrelated nearby instructions do not leak in.
+      const nums=[...line.matchAll(/(\d{1,3})\s*(回|rep(?:s)?|秒|sec(?:ond)?s?|分|セット|set(?:s)?)/gi)];
+      let value=(name==='プランク'||name==='バードドッグ')?30:10, sets=3, mode=(name==='プランク'||name==='バードドッグ')?'time':'reps';
+      for(const n of nums){
+        const v=Number(n[1]),u=n[2].toLowerCase();
+        if(/秒|sec|分/.test(u)){mode='time';value=/分/.test(u)?v*60:v;}
+        else if(/回|rep/.test(u)){if(mode!=='time')value=v;}
+        else if(/セット|set/.test(u))sets=v;
+      }
+      // Typical plank written as “プランク 30秒×3”; preserve time even when the line also mentions sets.
+      if(/プランク|plank|バードドッグ|bird dog/i.test(line)&&nums.some(n=>/秒|sec|分/i.test(n[2])))mode='time';
+      const item={name,mode,value:clamp(value,1,999),sets:clamp(sets,1,30),tip:'フォームを確認し、無理のない範囲で行う'};
+      out.push(item);seen.add(name);
+    }
+  }
+  return out;
 }
-function enter(){if(idx>=seq.length){complete();return;}const b=seq[idx],e=exercises[b.i];left=b.duration;lastSpoken='';lastRep=0;
- if(b.type==='work')say(`${e.name}、${b.i===3?'30秒':b.i===2?'左右各15回':'15回'}、${b.s}セット目、開始`);
- else say('休憩、30秒');render();}
-function complete(){active=false;clearInterval(interval);interval=null;idx=seq.length;$('start').disabled=true;$('pause').disabled=true;$('finished').classList.remove('hidden');say('トレーニング終了です。お疲れさまでした');render();}
-function tick(){if(!active)return;elapsed++;left--;const b=seq[idx],e=exercises[b.i];
- if(b.type==='work'&&b.i!==3&&$('repvoice').checked){const n=Math.min(e.reps,Math.floor((b.duration-left)/e.sec));if(n>0&&n!==lastRep){lastRep=n;say(`${n}回`);}}
- if(left<=0){idx++;if(idx>=seq.length){complete();return;}enter();return;}
- if(b.type==='rest'&&left<=3&&lastSpoken!==left){lastSpoken=left;say(left===1?'まもなく開始':`あと${left}秒`);}
- render();}
-function start(){if(active)return;if(!started){started=true;idx=0;elapsed=0;$('finished').classList.add('hidden');enter();}active=true;$('start').disabled=true;$('start').textContent='▶ 再開';$('pause').disabled=false;last=Date.now();interval=setInterval(()=>{const now=Date.now();if(now-last>=1000){const steps=Math.floor((now-last)/1000);last+=steps*1000;for(let i=0;i<Math.min(steps,5)&&active;i++)tick();}},200);}
-function pause(){if(!active)return;active=false;clearInterval(interval);interval=null;if('speechSynthesis'in window)speechSynthesis.cancel();$('start').disabled=false;$('pause').disabled=true;$('phase').textContent='PAUSED';$('instruction').textContent='一時停止中。再開ボタンで続けます';}
-function reset(){active=false;started=false;idx=0;left=0;elapsed=0;clearInterval(interval);interval=null;if('speechSynthesis'in window)speechSynthesis.cancel();$('start').disabled=false;$('start').textContent='▶ 開始';$('pause').disabled=true;$('finished').classList.add('hidden');render();}
-$('start').addEventListener('click',start);$('pause').addEventListener('click',pause);$('reset').addEventListener('click',reset);
-$('testvoice').addEventListener('click',()=>{if(!('speechSynthesis'in window)){alert('このブラウザでは音声読み上げに対応していません。Chromeで開いてください。');return;}speechSynthesis.cancel();const u=new SpeechSynthesisUtterance('音声テストです。トレーニングを始めましょう。');u.lang='ja-JP';u.volume=1;u.rate=1;speechSynthesis.speak(u);});
-render();
+async function readWorkoutPage(url){
+  // First try a text-reader service that can retrieve many pages despite browser CORS restrictions.
+  const normalized=url.replace(/^https?:\/\//i,'');
+  const attempts=[
+    'https://r.jina.ai/http://'+normalized,
+    url
+  ];
+  let lastError=null;
+  for(const target of attempts){
+    try{
+      const controller=new AbortController();
+      const timeout=setTimeout(()=>controller.abort(),12000);
+      const response=await fetch(target,{signal:controller.signal,headers:{'Accept':'text/plain, text/html;q=0.9,*/*;q=0.8'}});
+      clearTimeout(timeout);
+      if(!response.ok)throw new Error('HTTP '+response.status);
+      const raw=await response.text();
+      const doc=new DOMParser().parseFromString(raw,'text/html');
+      const body=(doc.body?.innerText||doc.body?.textContent||raw).trim();
+      if(body.length>80)return body.slice(0,50000);
+      throw new Error('本文が短すぎます');
+    }catch(err){lastError=err;}
+  }
+  throw lastError||new Error('本文を取得できませんでした');
+}
+function showNewRoutinePage(){ document.querySelector('main').classList.add('settings-mode');$('settingsPanel').classList.add('hidden');$('newRoutinePanel').classList.remove('hidden');window.scrollTo({top:0,behavior:'instant'});$('newRoutineName').focus();}
+function showSettingsPage(){document.querySelector('main').classList.add('settings-mode');$('newRoutinePanel').classList.add('hidden');$('routineEditorControls').classList.add('hidden');$('routineActions').classList.add('hidden');$('routinePicker').classList.add('hidden');$('settingsPanel').classList.remove('hidden');window.scrollTo({top:0,behavior:'instant'});}
+$('goAddRoutine').addEventListener('click',showNewRoutinePage);
+function updateRoutineActions(){
+ const r=routines[editingRoutineName||activeRoutine];if(!r)return;
+ $('selectedRoutineLabel').textContent='選択中のメニュー：'+(editingRoutineName||activeRoutine)+(r.protected?' 🔒 保護中':'');
+ $('protectRoutine').textContent=r.protected?'🔒 保護を解除':'🔓 保護する';
+ $('deleteRoutine').disabled=!!r.protected;$('renameRoutine').disabled=!!r.protected;
+ $('saveRoutine').disabled=!!r.protected;$('addExercise').disabled=!!r.protected;$('saveSettings').disabled=!!r.protected;$('restoreDefaults').disabled=!!r.protected;$('restSeconds').disabled=!!r.protected;
+}
+function showRoutinePicker(){
+ if(active||started){alert('メニューを編集するには、先にリセットしてください');return}
+ const list=$('routinePickerList');list.innerHTML='';
+ Object.keys(routines).forEach(name=>{
+  const b=document.createElement('button');b.type='button';b.className='btn';b.style.width='100%';b.style.textAlign='left';
+  b.textContent=(routines[name].protected?'🔒 ':'')+name+(routines[name].protected?'（保護中：解除後に編集）':'');
+  b.addEventListener('click',()=>{
+   editingRoutineName=name;activeRoutine=name;
+   exercises=routines[name].exercises.map(e=>({...e}));restSeconds=routines[name].restSeconds;applyRoutineVoiceSettings(name);
+   $('restSeconds').value=restSeconds;$('editingRoutineLabel').textContent=routines[name].protected?'このメニューは保護中です。編集するには「保護を解除」を押してください。':'編集内容を変更し、「設定を保存」を押してください。';
+   $('routinePicker').classList.add('hidden');$('routineActions').classList.remove('hidden');$('routineEditorControls').classList.remove('hidden');updateRoutineActions();renderRoutineSelect();
+   renderEditor();setEditorLocked(!!routines[name].protected);
+   $('editingRoutineLabel').scrollIntoView({behavior:'smooth',block:'start'});
+  });list.appendChild(b);
+ });
+ $('routinePicker').classList.remove('hidden');
+}
+$('editSavedRoutine').addEventListener('click',showRoutinePicker);
+$('cancelRoutinePicker').addEventListener('click',()=>$('routinePicker').classList.add('hidden'));
+$('backToSettings').addEventListener('click',showSettingsPage);
+$('createBlankRoutine').addEventListener('click',()=>{
+ if(active||started){alert('メニューを追加するには、先にリセットしてください');return}
+ const name=$('newRoutineName').value.trim();if(!name){alert('メニュー名を入力してください');return}if(routines[name]){alert('同じ名前のメニューがすでにあります');return}
+ const blank=[{name:'新しい種目',mode:'reps',value:10,secondsPerRep:2,sets:3,tip:'無理のないペースで動く'}];routines[name]={exercises:blank,restSeconds:30,protected:false,voiceEnabled:true,repVoice:true,voiceStyle:'female-soft'};activeRoutine=name;editingRoutineName=name;exercises=blank.map(e=>({...e}));restSeconds=30;saveRoutines();saveLocal();buildSeq();renderRoutineSelect();renderMenu();render();$('newRoutinePanel').classList.add('hidden');$('settingsPanel').classList.remove('hidden');$('routineEditorControls').classList.remove('hidden');renderEditor();$('routineActions').classList.remove('hidden');updateRoutineActions();$('editingRoutineLabel').textContent='新しいメニューを編集し、「設定を保存」を押してください。';alert('新規メニューを追加しました。種目名・回数・セット数を編集して保存してください。');
+});
+$('makeFromUrl').addEventListener('click',async()=>{
+ if(active||started){alert('メニューを作るには、先にリセットしてください');return}
+ const url=$('sourceUrl').value.trim();let text=$('sourceText').value.trim();
+ if(!url&&!text){alert('URLを入力するか、ページ本文を貼り付けてください');return}
+ if(url&&!/^https?:\/\//i.test(url)){alert('URLは https:// または http:// から入力してください');return}
+ const button=$('makeFromUrl');button.disabled=true;const oldLabel=button.textContent;
+ try{
+   // If pasted text exists, always parse it first; do not attempt network fetch.
+   if(!text&&url){button.textContent='ページを読み込み中…';try{text=await readWorkoutPage(url);$('sourceText').value=text;}catch(e){alert('URLから本文を取得できませんでした。記事本文をコピーして「ページ本文」欄に貼り付けてください。');return}}
+   const parsed=parseWorkoutText(text);
+   if(!parsed.length){alert('本文から対応する種目名を見つけられませんでした。1行に1種目ずつ、例のように入力してください。\nクランチ 15回×3セット\nレッグレイズ 12回×3セット\nプランク 30秒×3セット');return}
+   let name=$('newRoutineName').value.trim();if(!name)name=url?('記事メニュー '+new URL(url).hostname):'作成したメニュー';
+   name=name.slice(0,40);
+   if(routines[name]&&!confirm('同じ名前のメニューがあります。上書きしますか？'))return;
+   routines[name]={exercises:parsed,restSeconds:30,protected:false,voiceEnabled:true,repVoice:true,voiceStyle:'female-soft'};activeRoutine=name;editingRoutineName=name;exercises=parsed.map(e=>({...e}));restSeconds=30;saveRoutines();saveLocal();buildSeq();renderRoutineSelect();renderMenu();render();
+   $('newRoutinePanel').classList.add('hidden');$('settingsPanel').classList.remove('hidden');$('routineEditorControls').classList.remove('hidden');$('routineActions').classList.remove('hidden');updateRoutineActions();renderEditor();
+   alert(parsed.length+'種目のメニュー案を作成しました。種目の順序・回数・セット数を「編集」で確認し、「設定を保存」を押してください。');
+ }finally{button.disabled=false;button.textContent=oldLabel;}
+});
+$('saveRoutine').addEventListener('click',()=>{const n=editingRoutineName||activeRoutine;if(routines[n]?.protected){alert('このメニューは保護中です。先に保護を解除してください');return}if(active||started){alert('保存するには、先にリセットしてください');return}activeRoutine=n;storeCurrentRoutine();updateRoutineActions();alert('「'+activeRoutine+'」を保存しました');});
+$('renameRoutine').addEventListener('click',()=>{activeRoutine=editingRoutineName||activeRoutine;if(routines[activeRoutine]?.protected){alert('このメニューは保護中です。先に保護を解除してください');return}if(active||started){alert('名前を変更するには、先にリセットしてください');return}const name=prompt('新しいメニュー名を入力してください',activeRoutine);if(!name||!name.trim())return;const clean=name.trim().slice(0,40);if(clean!==activeRoutine&&routines[clean]){alert('同じ名前のメニューがすでにあります');return}routines[clean]=routines[activeRoutine];if(clean!==activeRoutine)delete routines[activeRoutine];activeRoutine=clean;editingRoutineName=clean;saveRoutines();renderRoutineSelect();renderMenu();updateRoutineActions();$('selectedRoutineLabel').textContent='選択中のメニュー：'+clean;});
+$('deleteRoutine').addEventListener('click',()=>{activeRoutine=editingRoutineName||activeRoutine;if(routines[activeRoutine]?.protected){alert('このメニューは保護中のため削除できません');return}if(active||started){alert('削除するには、先にリセットしてください');return}if(Object.keys(routines).length<=1){alert('メニューは最低1つ必要です');return}if(!confirm('「'+activeRoutine+'」を削除しますか？'))return;delete routines[activeRoutine];activeRoutine=Object.keys(routines)[0];editingRoutineName=null;switchRoutine(activeRoutine);saveRoutines();$('routineActions').classList.add('hidden');$('editList').innerHTML='';$('editingRoutineLabel').textContent='削除しました。編集するメニューを選択してください。';});
+$('start').addEventListener('click',start);$('pause').addEventListener('click',pause);$('reset').addEventListener('click',reset);$('settingsBtn').addEventListener('click',openSettings);$('settingsBtn2').addEventListener('click',openSettings);$('closeSettings').addEventListener('click',()=>{$('settingsPanel').classList.add('hidden');$('newRoutinePanel').classList.add('hidden');document.querySelector('main').classList.remove('settings-mode');window.scrollTo({top:0,behavior:'instant'});});$('addExercise').addEventListener('click',()=>{exercises.push({name:'新しい種目',mode:'reps',value:10,secondsPerRep:2,sets:3,tip:'無理のないペースで動く'});renderEditor()});$('saveSettings').addEventListener('click',saveSettings);$('restoreDefaults').addEventListener('click',()=>{if(confirm('初期設定に戻しますか？')){exercises=defaults.map(x=>({...x}));restSeconds=30;$('restSeconds').value=30;renderEditor()}});
+// 録音音声セット：カウントと開始音声を項目ごとに録音し、端末内に保存
+const VOICE_PROFILE_KEY='workoutRecordedVoiceProfiles';
+let activeCapture=null, captureStream=null, captureRecorder=null, captureChunks=[];
+const captureItems=[...Array.from({length:30},(_,i)=>({key:'count:'+String(i+1),label:String(i+1),text:String(i+1)})),...[50,60,90,100,120].map(n=>({key:'count:'+n,label:String(n),text:String(n)})),{key:'start',label:'スタート',text:'スタート'},{key:'setEnd',label:'セット目終了',text:'セット目終了'},{key:'rest',label:'秒休憩します',text:'秒休憩します'},{key:'finish',label:'お疲れ様でした',text:'お疲れ様でした'}];
+function getVoiceProfiles(){try{return JSON.parse(localStorage.getItem(VOICE_PROFILE_KEY)||'[]')}catch(e){return []}}
+function setVoiceProfiles(a){localStorage.setItem(VOICE_PROFILE_KEY,JSON.stringify(a));renderVoiceProfiles()}
+function selectedVoiceProfile(){return $('savedVoiceProfile')?.value||''}
+function renderVoiceProfiles(){const sel=$('savedVoiceProfile');if(!sel)return;const old=sel.value;const profiles=getVoiceProfiles();sel.innerHTML='';const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent='音声セットを選択してください';sel.appendChild(placeholder);profiles.forEach(p=>{const o=document.createElement('option');o.value=p.id;o.textContent=p.name;sel.appendChild(o)});if(profiles.some(p=>p.id===old))sel.value=old;else if(profiles.length)sel.value=profiles[0].id}
+function renderVoiceCaptureList(){const list=$('voiceCaptureList');list.innerHTML='';captureItems.forEach(item=>{const row=document.createElement('div');row.style.cssText='display:grid;grid-template-columns:minmax(70px,1fr) auto auto;gap:6px;align-items:center;border-bottom:1px solid var(--line);padding:8px 0';const label=document.createElement('span');label.textContent=item.label;const record=document.createElement('button');record.className='btn';record.type='button';record.textContent='● 録音';record.addEventListener('click',()=>startItemCapture(item,row));const play=document.createElement('button');play.className='btn';play.type='button';play.textContent='▶ 試聴';play.addEventListener('click',async()=>{const id=selectedVoiceProfile()||'draft';const key='profile:'+id+':'+item.key;const ok=await playStoredClip(key);if(!ok)alert('この項目はまだ録音されていません。')});row.append(label,record,play);list.appendChild(row)})}
+async function startItemCapture(item,row){if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder){alert('HTTPSのGitHub PagesをChromeで開き、マイクを許可してください。');return}if(captureRecorder&&captureRecorder.state!=='inactive'){alert('別の録音が進行中です。停止してから次を録音してください。');return}try{captureStream=await navigator.mediaDevices.getUserMedia({audio:true});captureChunks=[];activeCapture={item,row,profileId:selectedVoiceProfile()||'draft'};captureRecorder=new MediaRecorder(captureStream,MediaRecorder.isTypeSupported('audio/webm;codecs=opus')?{mimeType:'audio/webm;codecs=opus'}:{});captureRecorder.ondataavailable=e=>{if(e.data&&e.data.size)captureChunks.push(e.data)};captureRecorder.onstop=async()=>{const blob=new Blob(captureChunks,{type:captureRecorder.mimeType||'audio/webm'});const a=activeCapture;const profileId=a.profileId;const key='profile:'+profileId+':'+a.item.key;await putStoredClip(key,( $('voiceProfileName').value.trim()||'音声セット')+'_'+a.item.label+'.webm',blob);if(captureStream){captureStream.getTracks().forEach(t=>t.stop());captureStream=null}a.row.querySelector('span').textContent=a.item.label+'（録音済み）';$('voiceCaptureStatus').textContent='「'+a.item.label+'」を保存しました。続けて他の項目も録音してください。';captureRecorder=null;activeCapture=null};captureRecorder.start();row.querySelector('span').textContent=item.label+'（録音中…）';$('voiceCaptureStatus').textContent='「'+item.text+'」を読み上げてください。読み終えたら、画面下の録音停止ボタンを押してください。';let stop=$('stopItemCapture');if(!stop){stop=document.createElement('button');stop.id='stopItemCapture';stop.className='btn primary';stop.type='button';stop.textContent='■ 録音停止';stop.style.cssText='width:100%;margin:8px 0';$('voiceCaptureList').before(stop);stop.addEventListener('click',()=>{if(captureRecorder&&captureRecorder.state!=='inactive')captureRecorder.stop()})}stop.classList.remove('hidden')}catch(e){if(captureStream){captureStream.getTracks().forEach(t=>t.stop());captureStream=null}alert('マイクを使用できません。ブラウザのマイク権限を確認してください。')}}
+$('newVoiceProfile').addEventListener('click',()=>{const name=prompt('音声セットの名前を入力してください（例：音声1）','音声'+(getVoiceProfiles().length+1));if(!name||!name.trim())return;const id='vp_'+Date.now().toString(36);const profiles=getVoiceProfiles();profiles.push({id,name:name.trim()});localStorage.setItem(VOICE_PROFILE_KEY,JSON.stringify(profiles));renderVoiceProfiles();$('savedVoiceProfile').value=id;$('voiceProfileName').value=name.trim();$('voiceProfileEditor').classList.remove('hidden');renderVoiceCaptureList();$('voiceCaptureStatus').textContent='音声セット「'+name.trim()+'」を作成しました。各項目を録音してください。'});
+$('saveVoiceProfile').addEventListener('click',()=>{const id=selectedVoiceProfile();const name=$('voiceProfileName').value.trim();if(!name){alert('音声セット名を入力してください');return}if(!id){alert('先に「新規収録」を押してください');return}const profiles=getVoiceProfiles();const p=profiles.find(x=>x.id===id);if(p)p.name=name;localStorage.setItem(VOICE_PROFILE_KEY,JSON.stringify(profiles));renderVoiceProfiles();$('savedVoiceProfile').value=id;$('voiceCaptureStatus').textContent='「'+name+'」を保存しました。次回から「録音した声」→この音声セットを選択できます。'});
+$('savedVoiceProfile').addEventListener('change',()=>{const p=getVoiceProfiles().find(x=>x.id===selectedVoiceProfile());if(p){$('voiceProfileName').value=p.name;$('voiceProfileEditor').classList.remove('hidden');renderVoiceCaptureList()}else $('voiceProfileEditor').classList.add('hidden')});
+function recordedProfileKey(itemKey){const id=selectedVoiceProfile()||getVoiceProfiles()[0]?.id;return id?'profile:'+id+':'+itemKey:null}
+function showRecordedVoiceControls(show){$('savedVoiceControls').classList.toggle('hidden',!show);$('recordingScreen').classList.add('hidden');if(show)renderVoiceProfiles()}
+
+$('voiceStyle').addEventListener('change',()=>{const selected=$('voiceStyle').value;showRecordedVoiceControls(selected==='recorded-voice');if(selected!=='recorded-voice')$('recordingScreen').classList.add('hidden');if(selected==='recorded-voice')$('savedVoiceControls').scrollIntoView({behavior:'smooth',block:'start'});});
+$('voice').addEventListener('change',()=>{});$('repvoice').addEventListener('change',()=>{});$('noRepVoice').addEventListener('change',()=>{if($('noRepVoice').checked)$('repvoice').checked=false;else $('repvoice').checked=true;});
+$('recordBack').addEventListener('click',()=>{$('recordingScreen').classList.add('hidden')});
+let mediaRecorder=null,recordedChunks=[],recordedBlob=null,recordedUrl=null,recordStream=null;
+function recordSay(text,onDone){if(!('speechSynthesis'in window)){onDone();return}try{speechSynthesis.cancel();const u=configureUtterance(new SpeechSynthesisUtterance(text));u.onend=onDone;u.onerror=onDone;speechSynthesis.speak(u)}catch(e){onDone()}}
+$('recordStart').addEventListener('click',async()=>{if(!navigator.mediaDevices?.getUserMedia||!window.MediaRecorder){$('recordStatus').textContent='このブラウザでは録音できません。HTTPSのGitHub PagesをChromeで開いてください。';return}try{recordStream=await navigator.mediaDevices.getUserMedia({audio:true});recordedChunks=[];recordedBlob=null;$('recordPreview').classList.add('hidden');$('recordPlay').disabled=true;$('recordDownload').disabled=true;$('recordStart').disabled=true;$('recordStop').disabled=false;$('recordStatus').textContent='案内のあとに表示された文章を読み上げてください。';recordSay('録音を始めます。画面に表示された文章を、普段の声ではっきり読み上げてください。3、2、1、どうぞ。',()=>{const opts=MediaRecorder.isTypeSupported('audio/webm;codecs=opus')?{mimeType:'audio/webm;codecs=opus'}:{};mediaRecorder=new MediaRecorder(recordStream,opts);mediaRecorder.ondataavailable=e=>{if(e.data&&e.data.size)recordedChunks.push(e.data)};mediaRecorder.onstop=()=>{recordedBlob=new Blob(recordedChunks,{type:mediaRecorder.mimeType||'audio/webm'});if(recordedUrl)URL.revokeObjectURL(recordedUrl);recordedUrl=URL.createObjectURL(recordedBlob);$('recordPreview').src=recordedUrl;$('recordPreview').classList.remove('hidden');$('recordPlay').disabled=false;$('recordDownload').disabled=false;$('recordStart').disabled=false;$('recordStop').disabled=true;$('recordStatus').textContent='録音できました。試聴して、よければダウンロードしてください。';if(recordStream){recordStream.getTracks().forEach(t=>t.stop());recordStream=null}};mediaRecorder.start();$('recordStatus').textContent='録音中です。表示された文章を読み上げ、終わったら「録音停止」を押してください。'});}catch(e){if(recordStream){recordStream.getTracks().forEach(t=>t.stop());recordStream=null}$('recordStart').disabled=false;$('recordStop').disabled=true;$('recordStatus').textContent='マイクを使用できません。ブラウザのマイク権限を許可してから再試行してください。'}});
+$('recordStop').addEventListener('click',()=>{if(mediaRecorder&&mediaRecorder.state!=='inactive')mediaRecorder.stop();if('speechSynthesis'in window)speechSynthesis.cancel()});
+$('recordPlay').addEventListener('click',()=>{if(recordedUrl){$('recordPreview').currentTime=0;$('recordPreview').play()}});
+$('recordDownload').addEventListener('click',()=>{if(!recordedBlob||!recordedUrl)return;const a=document.createElement('a');a.href=recordedUrl;a.download='my-voice-sample.webm';document.body.appendChild(a);a.click();a.remove()});
+$('testvoice').addEventListener('click',async()=>{if('speechSynthesis'in window)speechSynthesis.cancel();if(currentAudio){currentAudio.pause();currentAudio=null}const style=(editingRoutineName&&$('voiceStyle')?.value)||$('voiceStyle').value||(routines[activeRoutine]?.voiceStyle)||'female-soft';if(style==='recorded-voice'){if(await playStoredClip('finish'))return;alert('録音音声がまだ登録されていません。CoeFont音声を登録すると、録音を選んだ場面で再生されます。');return}if(!('speechSynthesis'in window)){alert('このブラウザでは音声読み上げに対応していません。Chromeで開いてください。');return}const u=configureUtterance(new SpeechSynthesisUtterance('音声テストです。1、2、3、5回。1セット目終了。お疲れ様でした。'));speechSynthesis.speak(u)});
+loadVoiceStyle();applyRoutineVoiceSettings(activeRoutine);$('recordingScreen').classList.add('hidden');showRecordedVoiceControls($('voiceStyle').value==='recorded-voice');refreshVoices();if('speechSynthesis'in window&&'onvoiceschanged'in speechSynthesis)speechSynthesis.onvoiceschanged=refreshVoices;
+buildSeq();renderRoutineSelect();renderMenu();render();
 })();
 </script>
 <script>
