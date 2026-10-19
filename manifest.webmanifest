@@ -1,6 +1,6 @@
 {
-  "name": "腹筋トレーニングタイマー",
-  "short_name": "腹筋タイマー",
+  "name": "トレーニングタイマー",
+  "short_name": "トレーニングタイマー",
   "lang": "ja-JP",
   "start_url": "./",
   "scope": "./",
@@ -9,7 +9,7 @@
   "theme_color": "#123e68",
   "icons": [
     {
-      "src": "./app-icon.png",
+      "src": "./app-icon.png?v=3",
       "sizes": "1024x1024",
       "type": "image/png",
       "purpose": "any"
