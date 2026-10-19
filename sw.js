@@ -1,5 +1,5 @@
-const CACHE_NAME = 'abs-workout-v3';
-const APP_FILES = ['./', './index.html', './manifest.webmanifest', './icon.svg'];
+const CACHE_NAME = 'abs-workout-v4';
+const APP_FILES = ['./', './index.html', './manifest.webmanifest', './icon.svg', './app-icon.png'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_FILES)));
   self.skipWaiting();
