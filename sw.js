@@ -1,5 +1,5 @@
-const CACHE_NAME = 'training-timer-v3';
-const APP_FILES = ['./', './index.html', './manifest.webmanifest', './icon.svg', './app-icon.png?v=3'];
+const CACHE_NAME = 'training-timer-v7-rest-countdown';
+const APP_FILES = ['./', './index.html', './manifest.webmanifest', './app-icon-180.png', './app-icon-192.png'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_FILES)));
   self.skipWaiting();
